@@ -95,4 +95,4 @@ def blackjack_create_plots(value_grid, policy_grid, title: str):
         Patch(facecolor="grey", edgecolor="black", label="Stick"),
     ]
     ax2.legend(handles=legend_elements, bbox_to_anchor=(1.3, 1))
-    return fig
+    plt.show()
