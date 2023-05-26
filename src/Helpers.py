@@ -1,8 +1,39 @@
 import matplotlib.pyplot as plt
+import json
 import numpy as np
 from matplotlib.patches import Patch
 from collections import defaultdict
 import seaborn as sns
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+    
+def store_data(file_name, agent, env, params):
+    results = {
+        'agent': {
+            'name': agent.__class__.__name__,
+            'q_values': list(agent.q_values.items()),
+            'e_values': list(agent.e_values.items()) if hasattr(agent, 'e_values') else None,
+            'training_error': agent.training_error
+        },
+        'parameters': params,
+        'env': {
+            'name': env.env.env.env.__class__.__name__,
+            'episodes_rewards': list(env.return_queue),
+            'episodes_lengths': list(env.length_queue),  
+        }
+    }
+    with open(f'{file_name}.json', 'w') as file:
+        json.dump(results, file, cls=NumpyEncoder)
+
+def load_data(path):
+    result = {}
+    with open(path, 'r') as file:
+        result = json.load(file)
+    return result
 
 def training_visualize(env, agent, color:str, rolling_length=1_000):
     fig, axs = plt.subplots(ncols=3, figsize=(12, 5))
